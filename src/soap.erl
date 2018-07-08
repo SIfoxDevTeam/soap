@@ -25,7 +25,7 @@
 -export([wsdl2erlang/1, wsdl2erlang/2]).
 -export([make_test_client/1, make_test_client/2]).
 -export([erlang2wsdl/3, erlang2wsdl/4]).
--export([start_server/1, start_server/2]).
+-export([start_server/1, start_server/2, start_server/3]).
 -export([stop_server/1, stop_server/2]).
 
 %%% ============================================================================
@@ -213,6 +213,11 @@ start_server(Server) ->
 start_server(Server, Options) ->
     Http_server = soap_interface:http_server(Server:interface()),
     soap_server_util:start(Server, Http_server, Options).
+
+-spec start_server(module(), [server_option()], cowboy_protocol:opts()) -> any().
+start_server(Server, Options, ExtraOpts) ->
+  Http_server = soap_interface:http_server(Server:interface()),
+  soap_server_util:start(Server, Http_server, Options, ExtraOpts).
 
 -spec stop_server(module()) -> any().
 stop_server(Server) ->

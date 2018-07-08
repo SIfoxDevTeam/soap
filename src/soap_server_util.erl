@@ -22,7 +22,7 @@
 %%%
 -module(soap_server_util).
 
--export([start/3]).
+-export([start/3, start/4]).
 -export([stop/3]).
 
 -spec start(Module::module(), Server::module(), Options::[any()]) -> any().
@@ -30,6 +30,13 @@ start(Module, Server, Options) ->
     Server2 = proplists:get_value(http_server, Options, Server),
     Options2 = proplists:delete(http_server, Options),
     Server2:start(Module, Options2).
+
+-spec start(Module::module(), Server::module(), Options::[any()], cowboy_protocol:opts()) -> any().
+start(Module, Server, Options, ExtraOpts) ->
+    Server2 = proplists:get_value(http_server, Options, Server),
+    Options2 = proplists:delete(http_server, Options),
+    Server2:start(Module, Options2, ExtraOpts).
+
 
 -spec stop(Module::module(), Server::module(), Options::[any()]) -> any().
 stop(_Module, Server, Options) ->
