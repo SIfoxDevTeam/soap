@@ -30,6 +30,7 @@
 -export([upgrade/4]).
 -export([enrich_req/2]).
 -export([respond/4]).
+-export([get_body/1]).
 
 -type cowboy_req() :: cowboy_req:req().
 -type cowboy_env() :: cowboy_middleware:env().
@@ -64,6 +65,9 @@ enrich_req(Cowboy_req, Soap_req) ->
 respond(Cowboy_req, Env, _Handler, StatusCode) ->
   {ok, Req2} = cowboy_req:reply(StatusCode, Cowboy_req),
   terminate(Req2, Env).
+
+get_body(Cowboy_req) ->
+  cowboy_req:body(Cowboy_req).
 
 %%% ============================================================================
 %%% Internal functions

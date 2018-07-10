@@ -29,9 +29,10 @@
 -module(soap_cowboy_2_protocol).
 %%-behaviour(cowboy_sub_protocol).
 
--export([upgrade/6]).
+-export([upgrade/4]).
 -export([enrich_req/2]).
 -export([respond/4]).
+-export([get_body/1]).
 
 -type cowboy_req() :: cowboy_req:req().
 -type cowboy_env() :: cowboy_middleware:env().
@@ -46,9 +47,9 @@
 %% This callback is expected to behave like a middleware and to return an
 %% updated req object and environment.
 -spec upgrade(Cowboy_req::cowboy_req(), Env::cowboy_env(),
-              Soap_handler::module(), {Implementation_handler::module(), Options::any()},
-              Timeout::any(), Hibernate::any()) -> {ok, cowboy_req(), cowboy_env()}. 
-upgrade(Cowboy_req, Env, Soap_handler, {Handler, Options}, _, _) ->
+              Soap_handler::module(), {Implementation_handler::module(), Options::any()}) ->
+  {ok, cowboy_req(), cowboy_env()}.
+upgrade(Cowboy_req, Env, Soap_handler, {Handler, Options}) ->
   soap_cowboy_protocol:upgrade(Cowboy_req, Env, Soap_handler, 
                                {Handler, Options}, cowboy_2, ?MODULE).
 
@@ -63,6 +64,9 @@ enrich_req(Cowboy_req, Soap_req) ->
 respond(Cowboy_req, Env, Handler, StatusCode) ->
   Req2 = cowboy_req:reply(StatusCode, Cowboy_req),
   terminate(Req2, Env, Handler).
+
+get_body(Cowboy_req) ->
+  cowboy_req:read_body(Cowboy_req).
 
 %%% ============================================================================
 %%% Internal functions
