@@ -1,6 +1,6 @@
 {application,soap,
  [{description,"Support for SOAP"},
-  {vsn,"1.0"},
+  {vsn, semver},
   {modules,[]},
   {registered, []},
   {env, []},
