@@ -124,7 +124,7 @@ handle_message(Message, Soap_req) ->
     %% handler module to parse header(s) and body.
     Header_handler = get_function(Handler, header, 3, fun skip/3),
     Body_handler = get_function(Handler, body, 3, fun handle/3),
-    try 
+    try
         erlsom_sax:parseDocument(Message, 
                                  #p_state{handler = Handler,
                                  handler_state = Handler_state,
@@ -517,17 +517,23 @@ callback_error(Class, Reason, Soap_req, Handler_s) ->
                 soap_req = Soap_req,
                 handler_state = Handler_s}.
 
-
 handle(Parsed_body, Soap_req, Handler_s) ->
-    Record_type = element(1, Parsed_body),
-    Operations = soap_req:operations(Soap_req),
     Handler = soap_req:handler(Soap_req),
-    case lists:keyfind(Record_type, #op.in_type, Operations) of
-        false ->
-            {fault, soap_fault:fault(client, "Unknown operation", Soap_req), 
-             Soap_req, Handler_s};
-        #op{operation = Operation} ->
+    case soap_req:soap_action(Soap_req) of
+      undefined ->
+        Record_type = element(1, Parsed_body),
+        Operations = soap_req:operations(Soap_req),
+        case lists:keyfind(Record_type, #op.in_type, Operations) of
+          false ->
+            {fault, soap_fault:fault(client, "Unknown operation", Soap_req),
+              Soap_req, Handler_s};
+          #op{operation = Operation} ->
             Handler:Operation(Parsed_body, Soap_req, Handler_s)
+        end;
+      SA ->
+        [Op] = string:tokens(SA, "\""),
+        Operation = list_to_atom(Op),
+        Handler:Operation(Parsed_body, Soap_req, Handler_s)
     end.
 
 get_header_parser(Handler, Namespace, Soap_req, Handler_s) ->
